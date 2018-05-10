@@ -90,12 +90,16 @@ if __name__ == "__main__":
             runmap[run].AddKeys(k, GetOMSValue(v["path"], OMSObjects[v["Object"]]))
         print(runmap[run].keys)
 
-    allkeys= set()
+    cosmickeys= set()
+    collisionkeys= set()
     for r, l in runmap.items():
-        if l.fill ==0 :
-            allkeys.update(l.keys.values())
+        if l.fill == 0 :
+            cosmickeys.update(l.keys.values())
+        else:
+            collisionkeys.update(l.keys.values())
 
-    print(allkeys)
+    print("Cosmics keys" , cosmickeys)
+    print("Collision Keys" , collisionkeys)
 
         # ## Check Fill number
         # OpenRunSummary(run)
