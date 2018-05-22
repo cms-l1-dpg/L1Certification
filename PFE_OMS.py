@@ -10,8 +10,6 @@
 
 import urllib2
 import webbrowser
-import ssl
-import requests
 import json
 from collections import OrderedDict
 from runInfo import OmsApi

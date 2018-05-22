@@ -159,8 +159,8 @@ class RunResgister():
         print("")
         print("L1A Physics rate: <++>kHz")
         print("Average PU: <++>")
-        print("")
-        print("Fill %d has no isolated bunch for pre/post firing study." % self.fill_)
+        # print("")
+        # print("Fill %d has no isolated bunch for pre/post firing study." % self.fill_)
         print("")
         print("Rates as a function of pileup:")
         print("- L1_SingleMu22: <++>")
@@ -249,7 +249,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     runs = args.runs
-    # runs = [304212, 304259, 304269, 304299, 304300, 304301, 304303, 304333, 304351, 304354, 304355, 304356, 304366]
     runinfo = defaultdict(list)
     runsum =[]
 
