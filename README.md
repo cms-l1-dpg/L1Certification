@@ -1,6 +1,10 @@
 # L1PFE_OMS
+
+<span style="color:red; font-size:2em;">You should follow the instruction twiki for your very first shift to understand the precedure. Only use this script to speed up the process later. The output template is need editting to the official format!</span> 
+
 This repository holds the script for the L1 Prompt Feedback Expert (PFE) shifter.
 The PFE shifters are required to follow the [instruction](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide). The steps of certify each run involves with steps to retrieve information from run register, WBM, DQM etc. The scripts are designed to help shifter obtain those information easily. The judgement will come from the shifter. If you have problem with these scripts, good luck!
+
 
 ## Prerequiremnt
 
