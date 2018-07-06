@@ -14,7 +14,7 @@ import json
 import textwrap
 from collections import OrderedDict, defaultdict
 from runInfo import OmsApi
-from Config import ValidL1Keys, OMSObjectName
+from Config import ValidL1Keys, OMSObjectName, CosmicPlots
 from functools import reduce
 import operator
 import argparse
@@ -55,6 +55,77 @@ def OMSGetKeys(run):
 
     keys=[]
     for k, v in OMSpath.items():
-        path = ["data", "attributes", "l1_key"]
         keys.append(GetOMSValue(v["path"], OMSObjects))
     return keys
+
+def OMSGetL1Key(run):
+    k = "run"
+    OMSObjects = api.getOmsObject( OMSObjectName[k].format(run ) )
+    path = ["data", "attributes", "l1_key"]
+    return GetOMSValue(path, OMSObjects)
+
+def OMSGetBit(run, l1seeds):
+    k = "l1algorithmtriggers"
+    OMSObjects = api.getOmsObject( OMSObjectName[k].format(run ) )
+    seedmap = {}
+    for i in OMSObjects['data']:
+        seedmap[i["attributes"]["name"]] = {
+            "bit" : i["attributes"]["bit"],
+            "prescale": i["attributes"]["initial_prescale"],
+            "mask": i["attributes"]["mask"]
+        }
+
+    newmap = {}
+    for l1 in l1seeds:
+        if l1 in seedmap:
+            newmap[l1] = seedmap[l1]
+            if seedmap[l1]["bit"] != CosmicPlots[l1][0]:
+                # print("Bit number is wrong in %s" % l1)
+                # print(seedmap[l1]["bit"] , CosmicPlots[l1][0])
+                CosmicPlots[l1][0] = seedmap[l1]["bit"] 
+        else:
+            newmap[l1] = {"bit" : -1, "prescale" : 0, "mask": True}
+
+    return newmap
+
+def OMSGetCosmicRates(runinfo):
+    seedmap = OMSGetBit(runinfo['run'], CosmicPlots.keys())
+    omsobj = "l1algoRateLS"
+    restr = ""
+    for k, v in seedmap.items():
+        OMSObjects = api.getOmsObject( OMSObjectName[omsobj].format(runinfo['run'], v["bit"] ) )
+        ratetype = "post_dt_hlt_rate"
+        outline = "- {:<30} : ".format(k)
+        if v["bit"] == -1:
+            outline += "Not in menu"
+            restr += outline+"\n"
+            continue
+        outline += "Not active, " if v["mask"] else ""
+        if k == "L1_SingleEG8er2p5":
+            ratetype = "pre_dt_before_prescale_rate"
+            outline += "before prescale rate "
+        else:
+            outline += "prescale 0, " if v["prescale"] == 0 else ""
+        outline += "%.3fkHz " % OMSGetAverageRate(OMSObjects, ratetype, runinfo["LSs"])
+        restr += outline+"\n"
+    return restr
+
+def OMSGetAverageRate(OMSObj, ratetype, LSs):
+    lscnt = 0.0
+    sumrate = 0.0
+    for ls in OMSObj['data']:
+        LumiSection = ls["attributes"]["lumisection_number"]
+        rate = ls["attributes"][ratetype]
+        for lsrange in LSs:
+            if LumiSection >= lsrange[0] and LumiSection <= lsrange[1]:
+                lscnt += 1
+                sumrate += rate if rate is not None else 0.0
+                break
+    return sumrate/lscnt
+
+if __name__ == "__main__":
+    # OMSGetBit(319224, [""])
+    # OMSGetKeys(319224)
+    # OMSGetL1Key(319224)
+    # OMSGetCosmicRates(319224)
+    pass

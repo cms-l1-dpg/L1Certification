@@ -42,6 +42,10 @@ def OpenL1CosmisRate(run, fromLS, toLS, l1seed, bit):
     wbmurl = 'https://cmswbm.cern.ch/cmsdb/servlet/ChartL1TriggerRates?RUNID=%d&type=0&BITID=%d&LSLENGTH=23.31040958&TRIGGER_NAME=%s&fromLSNumber=%d&toLSNumber=%s&postDeadRatesHLT=1&' % (run, bit, l1seed, fromLS, toLS)
     webbrowser.open_new_tab(wbmurl)
 
+def OpenL1CosmisRateBeforePrescale(run, fromLS, toLS, l1seed, bit):
+    wbmurl = 'https://cmswbm.cern.ch/cmsdb/servlet/ChartL1TriggerRates?RUNID=%d&type=0&BITID=%d&LSLENGTH=23.31040958&TRIGGER_NAME=%s&fromLSNumber=%d&toLSNumber=%s&beforePrescale=1&' % (run, bit, l1seed, fromLS, toLS)
+    webbrowser.open_new_tab(wbmurl)
+
 def RunWBM(r):
     isCosmics = isCollision = False
     run = r['run']
@@ -75,7 +79,10 @@ def RunWBM(r):
     if isCosmics:
         ## Check avg rate of cosmic L1Seeds
         for h, bit in CosmicPlots.items():
-            OpenL1CosmisRate(run, LS[0], LS[1], h, bit[0])
+            if h == "L1_SingleEG8er2p5":
+                OpenL1CosmisRateBeforePrescale(run, LS[0], LS[1], h, bit[0])
+            else:
+                OpenL1CosmisRate(run, LS[0], LS[1], h, bit[0])
 
 if __name__ == "__main__":
     json_file = open("PFE.json", 'r')

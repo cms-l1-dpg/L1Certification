@@ -12,12 +12,11 @@ import os
 import argparse
 import json
 import datetime
-import logging.handlers
 
 from PFE_WBM import RunWBM
 from PFE_DQM import RunDQM
 from PFE_Prefiring import CheckPreFiringFill
-from PFE_OMS import OMSGetMissingKeys
+from PFE_OMS import OMSGetMissingKeys, OMSGetL1Key, OMSGetCosmicRates
 from Config import PUPlots, CosmicPlots
 from collections import defaultdict
 
@@ -36,14 +35,14 @@ def PrintCollisionElog(r):
         fprint("No Physically meaningful LS range")
     else:
         fprint("Physically meaningful LS range: %s" % r['LS'])
-    fprint("L1 key <++>")
+    fprint("L1 key: %s" % OMSGetL1Key(r['run']))
     fprint("")
     fprint("L1A Physics rate: <++>kHz")
     fprint("Average PU: <++>")
     fprint("")
     fprint("Rates as a function of pileup:")
     for p in PUPlots:
-        fprint("- %s: <++>" % p)
+        fprint("- {:<30} : <++>".format(p))
     fprint("")
     fprint("")
     fprint("L1T DQM: <++>")
@@ -58,13 +57,14 @@ def PrintCosmicElog(r):
     fprint('')
     fprint("Detector components: %s" % r['DetComp'])
     fprint("Physically meaningful LS range: %s" % r['LS'])
-    fprint("L1 key <++>")
+    fprint("L1 key: %s" % OMSGetL1Key(r['run']))
     fprint("")
     fprint("L1A Physics rate: <++>kHz")
     fprint("")
     fprint("Individual rates:")
-    for k, v in CosmicPlots.items() :
-        fprint("%s: %s" % (k, v[1]))
+    # for k, v in CosmicPlots.items() :
+        # fprint("%s: %s" % (k, v[1]))
+    fprint(OMSGetCosmicRates(r))
     fprint("")
     fprint("L1T DQM: <++>")
     fprint("L1TEMU DQM: <++>")
@@ -105,12 +105,8 @@ if __name__ == "__main__":
 
     ## Getting the elog file
     now = datetime.datetime.now()
-    filename = "Elog_%d_%d_%d.log" % (now.month, now.day, now.year)
+    filename = "Elog_%s_%d:%d.log" % (now.strftime("%m/%d"), now.hour, now.minute)
     print("Preparing elog file %s : " % filename)
-    should_roll_over = os.path.isfile(filename)
-    handler = logging.handlers.RotatingFileHandler(filename, mode='w', backupCount=5)
-    if should_roll_over:  # log already exists, roll over!
-        handler.doRollover()
 
     ## Print out elog file
     runsum =[]

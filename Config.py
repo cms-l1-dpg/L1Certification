@@ -28,7 +28,7 @@ CosmicPlots = OrderedDict([
     ('L1_SingleMu7'                 , [12 , "<+20-25Hz+>"])  ,
     ('L1_SingleEG8er2p5'            , [56 , "<+10-270Hz+>"]) ,
     ('L1_SingleJet35'               , [120, "<+0-100Hz+>"])  ,
-    ('L1_SingleJet20er2p7_NotBptxOR', [230, "<+Active+>"])   ,
+    ('L1_SingleJet20er2p5_NotBptxOR', [230, "<+Active+>"])   ,
     ('L1_SingleMuOpen_NotBptxOR'    , [222, "<+Active+>"])
 ])
 
@@ -43,9 +43,10 @@ PrefiringSeeds = [
 ]
 
 OMSObjectName = {
-    # "run" : "runs/{}",
+    "run" : "runs/{}",
     "l1configurationKeys" : "runs/{}/l1configurationKeys",
-    "l1algorithmtriggers" : "runs/{}/l1algorithmtriggers"
+    "l1algorithmtriggers" : "runs/{}/l1algorithmtriggers",
+    "l1algoRateLS" : "l1algorithmtriggers/{}_{}/relationships/l1AlgorithmTriggersPerLumisection"
 }
 ## Valid L1T from https://twiki.cern.ch/twiki/bin/viewauth/CMS/OnlineWBL1TriggerKeys2018
 ## Current version r168, 2018-07-04
