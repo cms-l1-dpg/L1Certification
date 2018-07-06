@@ -38,7 +38,6 @@ class RunResgister():
         self.lumicount = None
         self.createDate_ = None
         self.stopDate_ = None
-        # self.runtype_ = "Cosmics"
 
     def CheckRunTime(self):
         q = "select r.RUNNUMBER, r.STARTTIME, r.STOPTIME from runreg_global.runs r where r.runnumber = :run"
@@ -46,6 +45,9 @@ class RunResgister():
         oucsv = api.csv(q, p)
         df = pd.read_csv(io.StringIO(oucsv.decode("UTF-8")))
         selrun = df.RUNNUMBER == self.run_
+        if selrun.empty:
+            print("Can NOT find this run %d! Please double check!" % self.run_)
+            return False
         self.createDate_ = df.loc[selrun]['STARTTIME'].values[0]
         self.stopDate_ = df.loc[selrun]['STOPTIME'].values[0]
 
@@ -154,8 +156,11 @@ class RunResgister():
         print("## Run %d (%s, fill %d) -- L1T %s" % (self.run_, self.runtype_, self.fill_, self.L1TOnline_) )
         print('')
         print("Detector components: %s" % self.DetComp_)
-        print("Physically meaningful LS range: %s" % ", ".join(["%d-%d" % (i[0], i[1])for i in self.lumiRange]))
-        print("L1 key <++>")
+        if self.lumiRange is None:
+            print("No Physically meaningful LS range")
+        else:
+            print("Physically meaningful LS range: %s" % ", ".join(["%d-%d" % (i[0], i[1])for i in self.lumiRange]))
+        print("L1 key <++> ")
         print("")
         print("L1A Physics rate: <++>kHz")
         print("Average PU: <++>")
@@ -206,16 +211,23 @@ class RunResgister():
         remap['run'] = self.run_
         remap['fill'] = self.fill_ if "Collisions" in self.runtype_ else 0
         remap['LS'] = '[%d, %d]' % (self.lumiRange[0][0], self.lumiRange[-1][-1])
+        remap['LSs'] = self.lumiRange
         remap['type'] = self.runtype_
         remap['start'] = self.createDate_
         remap['stop'] = self.stopDate_
+        remap['L1T'] = self.L1TOnline_
+        remap['DetComp'] = self.DetComp_
+        remap['lumicount'] = self.lumicount
         return remap
 
     def Run(self):
-        self.CheckRunTime()
+        validrun = self.CheckRunTime()
+        if validrun:
+            return False
         self.ParseSysdf(self.CheckSubSystem())
         self.ParseLS(self.CheckRunLS())
-        return self.PrintElog()
+        return True
+        # return self.PrintElog()
 
 
 def PrintSummary(runinfo, runsum):
@@ -250,12 +262,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     runs = args.runs
     runinfo = defaultdict(list)
-    runsum =[]
-
+    
     for r in runs:
         rr = RunResgister(r)
-        runsum.append(rr.Run())
-        runinfo["L1PFE"].append(rr.ReturnInfo())
-    PrintSummary(runinfo, runsum)
+        validrun = rr.Run()
+        if validrun:
+            runinfo["L1PFE"].append(rr.ReturnInfo())
+
     with open('PFE.json', 'w') as f:
         json.dump(runinfo, f)

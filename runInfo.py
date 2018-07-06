@@ -106,5 +106,6 @@ class OmsApi:
         request = urllib2.Request( callurl )
         response = urllib2.urlopen(request)
         data = json.load( response )
+        # print(callurl)
         return data
 

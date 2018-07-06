@@ -11,7 +11,7 @@
 import urllib2
 import webbrowser
 import json
-from collections import OrderedDict
+from Config import PUPlots, CosmicPlots
 
 def OpenRunSummary(run):
     wbmurl = 'https://cmswbm.cern.ch/cmsdb/servlet/RunSummary?RUN=%d&SUBMIT=Submit' % run
@@ -42,64 +42,43 @@ def OpenL1CosmisRate(run, fromLS, toLS, l1seed, bit):
     wbmurl = 'https://cmswbm.cern.ch/cmsdb/servlet/ChartL1TriggerRates?RUNID=%d&type=0&BITID=%d&LSLENGTH=23.31040958&TRIGGER_NAME=%s&fromLSNumber=%d&toLSNumber=%s&postDeadRatesHLT=1&' % (run, bit, l1seed, fromLS, toLS)
     webbrowser.open_new_tab(wbmurl)
 
+def RunWBM(r):
+    isCosmics = isCollision = False
+    run = r['run']
+    LS = eval(r['LS'])
+    fill = r['fill']
+    if fill == 0:
+        isCosmics = True
+    else:
+        isCollision = True
 
-if __name__ == "__main__":
-
-    PUPlots = [
-    'L1_SingleMu22',
-    'L1_SingleJet180',
-    'L1_ETM100',
-    'L1_HTT300er',
-    'L1_SingleEG40',
-    'L1_SingleIsoEG34',
-    'L1_DoubleIsoTau32er2p1'
-    ]
-
-    CosmicPlots = OrderedDict([
-        ('L1_SingleMuCosmics' , 0),
-        ('L1_SingleMu7', 10),
-        ('L1_SingleEG5' , 50),
-        ('L1_SingleJet35' , 133),
-        ('L1_SingleJet20er3p0_NotBptxOR' , 207),
-        ('L1_SingleMuOpen_NotBptxOR', 205)
-    ])
-
-
-    json_file = open("PFE.json", 'r')
-    data = json.load(json_file)
-    for r in data["L1PFE"]:
-        isCosmics = isCollision = False
-        run = r['run']
-        LS = eval(r['LS'])
-        fill = r['fill']
-        if fill == 0:
-            isCosmics = True
-            # continue
-        else:
-            isCollision = True
-            # continue
-        print(run, LS, fill)
 #============================================================================#
 #-------------------------     Start to Open WBM     ------------------------#
 #============================================================================#
-        ## Check Fill number
-        OpenRunSummary(run)
-        ## Check L1 Key, GTKeys etc
-        ## TODO: Comparing keys to twiki is tedious! Unfortunately ssl
-        ## certification is difficult to work with in Python
-        OpenL1Summary(run) 
-        ## Check L1Ratew with selected Lumi Section
-        OpenL1RatewithLS(run, LS[0], LS[1]) ##
+    ## Check Fill number
+    OpenRunSummary(run)
+    ## Check L1 Key, GTKeys etc
+    ## TODO: Comparing keys to twiki is tedious! Unfortunately ssl
+    ## certification is difficult to work with in Python
+    # OpenL1Summary(run) 
+    ## Check L1Ratew with selected Lumi Section
+    OpenL1RatewithLS(run, LS[0], LS[1]) ##
 
 
-        if isCollision:
-            ## Check for PU dependency of Collision
-            for l1seed in PUPlots:
-                OpenL1PUDepPlot(fill, l1seed)
-            ## Check for bunch fill, check pre/post firing with isolated bunch
-            OpenBunchFill(fill)
+    if isCollision:
+        ## Check for PU dependency of Collision
+        for l1seed in PUPlots:
+            OpenL1PUDepPlot(fill, l1seed)
+        ## Check for bunch fill, check pre/post firing with isolated bunch
+        # OpenBunchFill(fill)
 
-        if isCosmics:
-            ## Check avg rate of cosmic L1Seeds
-            for h, bit in CosmicPlots.items():
-                OpenL1CosmisRate(run, LS[0], LS[1], h, bit)
+    if isCosmics:
+        ## Check avg rate of cosmic L1Seeds
+        for h, bit in CosmicPlots.items():
+            OpenL1CosmisRate(run, LS[0], LS[1], h, bit[0])
+
+if __name__ == "__main__":
+    json_file = open("PFE.json", 'r')
+    data = json.load(json_file)
+    for r in data["L1PFE"]:
+        RunWBM(r)
