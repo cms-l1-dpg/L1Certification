@@ -41,7 +41,7 @@ def ParseROOTFile(run):
                 bitmap[x] = int(ybin[ybin.find("(")+1:ybin.find(")")])
                 ratemap[x] = ""
                 for j in range(1, g.GetNbinsX()+1):
-                    ratemap[x] += " {:<10.3f}".format(g.GetBinContent(i, j))
+                    ratemap[x] += " {:<10.3f}".format(g.GetBinContent(j, i))
                 break
     omsrate = OMSGetRate(run, bitmap)
     for k in ratemap.keys():
@@ -83,5 +83,6 @@ def CheckPreFiringFill(data):
 
 
 if __name__ == "__main__":
-    GetFile(319177)
-    ParseROOTFile(319177)
+    GetFile(319254)
+    t=ParseROOTFile(319254)
+    print(t)

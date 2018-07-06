@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     ## Getting the elog file
     now = datetime.datetime.now()
-    filename = "Elog_%s_%d:%d.log" % (now.strftime("%m/%d"), now.hour, now.minute)
+    filename = "Elog_%s_%d%d.log" % (now.strftime("%m%d"), now.hour, now.minute)
     print("Preparing elog file %s : " % filename)
 
     ## Print out elog file

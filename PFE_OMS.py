@@ -106,7 +106,7 @@ def OMSGetCosmicRates(runinfo):
             outline += "before prescale rate "
         else:
             outline += "prescale 0, " if v["prescale"] == 0 else ""
-        outline += "%.3fkHz " % OMSGetAverageRate(OMSObjects, ratetype, runinfo["LSs"])
+        outline += "%.3fHz " % OMSGetAverageRate(OMSObjects, ratetype, runinfo["LSs"])
         restr += outline+"\n"
     return restr
 
