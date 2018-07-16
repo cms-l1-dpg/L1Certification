@@ -8,7 +8,7 @@ This repository holds the script for the L1 Prompt Feedback Expert (PFE) shifter
 The PFE shifters are required to follow the [instruction](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide). The steps of certify each run involves with steps to retrieve information from run register, WBM, DQM etc. The scripts are designed to help shifter obtain those information easily. The judgement will come from the shifter. If you have problem with these scripts, good luck!
 
 
-## Prerequiremnt
+## Pre-requirement
 
 * CERN account to enable you login to lxplus via ssh
 * A web browser on your laptop
@@ -24,31 +24,72 @@ You can check out the code to your laptop via
 
 Follow the twiki to setup your role. Each date, follow [Choosing the runs to certify](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#Choosing_the_runs_to_certify) to find out the list of run to certify. This step is intentionally left for shifter to review and decide the priority.
 
-### [The physically meaningful LS range](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#Active_subsystems_and_the_physic)
-One you get the list of runs to certify, you should login to lxplus and follow the below steps
+## Start of shift
+Once you get the list of runs to certify, you should login to lxplus and follow the below steps
 ```shell
 ## Setup a CMSSW environment if you already have one
 ## Otherwise follow the below steps
-cmsrel CMSSW_10_0_0
-cd CMSSW_10_0_0
+cmsrel CMSSW_10_0_0/src
+cd CMSSW_10_0_0/src
 cmsenv
 ## Checkout the code
 git clone https://github.com/cms-l1-dpg/L1PFE_OMS.git
+cd L1PFE_OMS
 ```
 Run the run register script
 `python PFE_RR.py 306091 XXXXXX XXXXXX`
 
-Then you should have a print out of a template for your shifter report
+Then you should have a file "PFE.json" produced in the directory.
+
+> We are currently working with OMS development team on the Run Register
+> API. Once that is ready, this step can be moved to your laptop and you won't
+> need to login to lxplus. Before that happened, you will need to login to
+> lxplus for the Run Register API.
+
+
+## Verify each run
+Go to your laptop and make sure you have your grid certificate stored in
+~/.globus. If not, please follow the [instruction](https://ca.cern.ch/ca/help/?kbid=024010).
+Create a working directory for you and follow the below commends
+```shell
+git clone https://github.com/cms-l1-dpg/L1PFE_OMS.git
+cd L1PFE_OMS
+source setup.(c)sh #Depending on your shell
+scp lxplus.cern.ch:$PATH_TO_JSON .
 ```
+The setup script will create a key file for grabbing the DQM files. You also
+will setup a proxy via lxplus.cern.ch for the OMS API.
+
+Now, to start the certification, you run `python PFE_Shifter.py `. The code
+will print out an elog file for you in format as Elog_MMDD_HHMM.log. When it is
+ready, you will see the below:
+```shell
+Elog file Elog_0716_1633.log is ready! Open a new terminate to edit the file...
+Press Enter to start the shift!
+```
+Open a new terminate to edit the file.
+
+You might see something as below:
+```
+=====================================================================
+First Collisions17 run (start time): 306091 (2017-11-02 15:59:38)
+Last Collisions17 run (stop time): 306091 (2017-11-02 20:00:14)
+
+Missing keys for Collisions17 runs:
+
+Run    #LS Group         L1T Online L1Tmu Offline L1Tcalo Comments
+---------------------------------------------------------------------
+306091 585 Collisions17 GOOD GOOD GOOD
+---------------------------------------------------------------------
 ---------------------------------------------------------------------
 
 ## Run 306091 (Collisions17, fill 6358) -- L1T GOOD
 
 Detector components: CTPPS EXCLUDED, CASTOR EXCLUDED,
 Physically meaningful LS range: 45-629
-L1 key <++>
+L1 key 
 
-L1A Physics rate: <++>kHz
+L1A Physics rate: kHz
 Average PU: <++>
 
 Fill 6358 has no isolated bunch for pre/post firing study.
@@ -66,51 +107,21 @@ Rates as a function of pileup:
 L1T DQM: <++>
 L1TEMU DQM: <++>
 
-=====================================================================
-First Collisions17 run (start time): 306091 (2017-11-02 15:59:38)
-Last Collisions17 run (stop time): 306091 (2017-11-02 20:00:14)
-
-Missing keys for Collisions17 runs:
-
-Run    #LS Group         L1T Online L1Tmu Offline L1Tcalo Comments
----------------------------------------------------------------------
-306091 585 Collisions17 GOOD GOOD GOOD
----------------------------------------------------------------------
 ```
+As you can see, it printout a template of the run report and a summary of the
+shift at the end. <++> denotes the places you need to modify in the report.
+The tool also define the Physically meaningful LS for you. 
 
-As you can see, it printout a template of the run report and a summary of the shift at the end. <++> denotes the places you need to modify in the report. The tool also define the Physically meaningful LS for you. Copy the printout into a text file in your laptop, as you will be editing the file while you going through the steps.
-
-It also produce a PFE.json file in the same directory, which store all the information of the runs.
-
-### [Trigger Keys](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#Trigger_keys)
-Once you get the report template and the json file, you can proceed to the next steps on your laptop.
-
-```shell
-git clone https://github.com/cms-l1-dpg/L1PFE_OMS.git
-cd L1PFE_OMS
-scp lxplus.cern.ch:~/PFE.json . ##Correct path to json
-## step the OMS proxy for OMS API
-source setupProxy.csh
-python PFE_OMS.py
-```
-
-The PFE_OMS.py will print out the uniq trigger keys for cosmic runs and collision runs separately. You can then proceed to compare them with the official trigger keys twiki and report the missing keys.
-
-> Note: It is tricky to get the twiki page via SSL. So yeah, you still have to compare by eyes for each trigger Keys
-
-### Trigger Rate
-
-The next steps include [L1A Physics rate](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#L1A_Physics_rate), [Individual trigger rates (only for cosmics)](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#Individual_trigger_rates_only_fo), [Rate vs. PU plots (only for collisions)](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#Rate_vs_PU_plots_only_for_collis). These steps require you to open WBM pages for each run and report. The script will open these WBM pages for you, with each page a new tab. Please make sure your browser is clean and your laptop have sufficient memory for them.
-
-Simply run the below script. Once webpages are open, you can go through the steps for validating the rate and closing the tabs.
-`python PFE_WBM.py`
-
-> Note: the code won't check the [Pre/post-firing fractions for L1 seeds (only for collisions)](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#Pre_post_firing_fractions_for_L1). You still need to work on this by hand.
-
-### [L1T and L1TEMU Online DQM plots](https://twiki.cern.ch/twiki/bin/viewauth/CMS/OfflineTriggerShifterGuide#L1T_and_L1TEMU_Online_DQM_plots)
-
-`python PFE_DQM.py` will open the tabs of three DQM webpage per run: Summary, Shift/L1T, Shift/L1TEMU. You will need to accept the certification to enable DQM webpage to load at first. As the DQM server is slow, the code will sleep for 10 section before opening the next DQM page. Probabily this is a good time for your break of the shift.
+When you are ready, follow the instruction by hitting enter. The code will
+guide you through the certification of each run, by opening the WBM and DQM
+webpages for you. 
 
 ### Finish the rest of the shift
+
+Once you go through all the runs, make sure you edit the elog file as the
+official template. This code might not be synchronize closely with the twiki. 
+Follow the instruction twiki for the rest of steps. If you encounter any
+problem or issues with the code, please create an issue on the github and we
+will try to follow up as soon as we can.
 
 *That is it! Please follow the twiki for the rest steps and finish your shift for today!*
