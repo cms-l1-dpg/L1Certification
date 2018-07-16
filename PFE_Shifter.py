@@ -48,7 +48,7 @@ def PrintCollisionElog(r):
     fprint("L1T DQM: <++>")
     fprint("L1TEMU DQM: <++>")
     fprint("")
-    return "{:<10} {:<6} {:<25} {:<10} {:<15} {:<10}".format(r['run'], r['lumicount'], r['type'], r['L1T'], "GOOD", "GOOD")
+    return True
 
 def PrintCosmicElog(r):
     fprint('---------------------------------------------------------------------')
@@ -59,7 +59,7 @@ def PrintCosmicElog(r):
     fprint("Physically meaningful LS range: %s" % r['LS'])
     fprint("L1 key: %s" % OMSGetL1Key(r['run']))
     fprint("")
-    fprint("L1A Physics rate: <++>kHz")
+    fprint("L1A Physics rate: <++>Hz")
     fprint("")
     fprint("Individual rates:")
     # for k, v in CosmicPlots.items() :
@@ -69,7 +69,7 @@ def PrintCosmicElog(r):
     fprint("L1T DQM: <++>")
     fprint("L1TEMU DQM: <++>")
     fprint("")
-    return "{:<10} {:<6} {:<25} {:<10} {:<15} {:<10}".format(r['run'], r['lumicount'], r['type'], r['L1T'], "GOOD", "GOOD")
+    return True
 
 def PrintSummary(runinfo, runsum):
     fprint("=====================================================================")
@@ -112,16 +112,20 @@ if __name__ == "__main__":
     runsum =[]
     with open(filename, 'w') as outfile:
         for r in data["L1PFE"]:
+            runsum.append("{:<10} {:<6} {:<25} {:<10} {:<15} {:<10}". \
+                          format(r['run'], r['lumicount'], r['type'], r['L1T'], "GOOD", "GOOD"))
+        PrintSummary(data, runsum)
+
+        for r in data["L1PFE"]:
             if "Cosmics" in r['type']:
-                runsum.append(PrintCosmicElog(r))
+                PrintCosmicElog(r)
             if "Collisions" in r['type']:
-                runsum.append(PrintCollisionElog(r))
+                PrintCollisionElog(r)
         outfile.write('---------------------------------------------------------------------\n')
         outfile.write('\n')
         outfile.write(CheckPreFiringFill(data))
         outfile.write('\n')
         outfile.write('---------------------------------------------------------------------\n')
-        PrintSummary(data, runsum)
         outfile.close()
 
     print("Elog file %s is ready! Open a new terminate to edit the file... " % filename)

@@ -25,7 +25,6 @@ def RunDQM(r):
     for folder in ["L1T", "L1TEMU"]:
         dqmurl = DQMPath.format(r['run'], folder)
         webbrowser.open_new_tab(dqmurl)
-        sleep(1)
 
 if __name__ == "__main__":
     run_json = open("PFE.json", 'r')

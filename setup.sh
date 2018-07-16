@@ -1,6 +1,6 @@
 #!/bin/sh
 
-
+echo "Setup the key files using your grid certificate:"
 if [ ! -f ./keyout.pem ]; then
   if [ ! -f $HOME/.globus/userkey.pem ]; then
     echo "We need userkey.pem in ~/.globus for Pre/Post firing"
@@ -8,6 +8,8 @@ if [ ! -f ./keyout.pem ]; then
     openssl rsa -in $HOME/.globus/userkey.pem  -out keyout.pem
   fi
 fi
+echo "Done with grid certificate keys"
 
+echo "Setup the proxy, please login to lxplus.cern.ch"
 ssh -fN -L 8080:cmsomsapi:8080 lxplus.cern.ch
 
