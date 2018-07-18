@@ -29,7 +29,7 @@ Once you get the list of runs to certify, you should login to lxplus and follow 
 ```shell
 ## Setup a CMSSW environment if you already have one
 ## Otherwise follow the below steps
-cmsrel CMSSW_10_0_0/src
+cmsrel CMSSW_10_0_0
 cd CMSSW_10_0_0/src
 cmsenv
 ## Checkout the code
