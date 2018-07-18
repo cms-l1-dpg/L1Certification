@@ -77,8 +77,8 @@ def PrintSummary(runinfo, runsum):
     for r in runinfo["L1PFE"]:
         rtype[r['type']][r['run']] = (r['start'], r['stop'])
     for k,v in rtype.items():
-        firstrun = list(v.keys())[-1]
-        lastrun = list(v.keys())[0]
+        firstrun = min(v.keys())
+        lastrun = max(v.keys())
         fprint("First %s run (start time): %d (%s)" % (k, firstrun, v[firstrun][0]))
         fprint("Last %s run (stop time): %d (%s)" % (k, lastrun, v[lastrun][1]))
         fprint("")
