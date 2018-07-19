@@ -102,14 +102,16 @@ class RunResgister():
         goodLS = None
         ## Get Cosmics LS
         if "Cosmics" in self.runtype_:
-            goodLS = df[ (df.RLR_RUN_NUMBER == self.run_) &
-                ##At least one of the muon systems (Csc, Dt, Rpc) is active
-               ( ((df.CSCM_READY == 1) & (df.CSCP_READY == 1) )  #CSC on
-               | ((df.DT0_READY == 1) & (df.DTP_READY == 1)& (df.DTM_READY == 1))  # DT on
-               | (df.RPC_READY == 1))
-               ## Silicon strips are on and in
-               & ((df.TECM_READY == 1) & (df.TECP_READY == 1)& (df.TIBTID_READY == 1) & (df.TOB_READY == 1))
-              ]
+            goodLS = df[ (df.RLR_RUN_NUMBER == self.run_)
+                        ## CMS is active
+                        & (df.CMS_ACTIVE == 1)
+                        ##At least one of the muon systems (Csc, Dt, Rpc) is active
+                        & ( ((df.CSCM_READY == 1) & (df.CSCP_READY == 1) )  #CSC on
+                         | ((df.DT0_READY == 1) & (df.DTP_READY == 1)& (df.DTM_READY == 1))  # DT on
+                         | (df.RPC_READY == 1))
+                        ## Silicon strips are on and in
+                        & ((df.TECM_READY == 1) & (df.TECP_READY == 1)& (df.TIBTID_READY == 1) & (df.TOB_READY == 1))
+                       ]
 
         if "Collisions" in self.runtype_:
             goodLS =  df[(df.RLR_RUN_NUMBER == self.run_)
