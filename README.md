@@ -13,6 +13,8 @@ The PFE shifters are required to follow the [instruction](https://twiki.cern.ch/
 * CERN account to enable you login to lxplus via ssh
 * A web browser on your laptop
 * git on your laptop to check out code
+* ROOT on your laptop
+  * You can download the binary version of ROOT from [here](https://root.cern.ch/downloading-root).
 * Python on your laptop
   * The scripts only uses Python Standard Library, which should comes with Python. If you have package missing, you can install it with pip.
 
