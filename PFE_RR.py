@@ -118,9 +118,10 @@ class RunResgister():
                          ## CMS is active
                          & (df.CMS_ACTIVE == 1)
                          ## Beam is stable
-                         &( (df.BEAM1_STABLE == 1) & (df.BEAM2_STABLE==1))
+                         & ((df.BEAM1_STABLE == 1) & (df.BEAM2_STABLE==1))
                          ## Tracker is on
-                         & ((df.TECM_READY == 1) & (df.TECP_READY == 1)& (df.TIBTID_READY == 1) & (df.TOB_READY == 1))
+                         & ((df.BPIX_READY == 1) & (df.FPIX_READY == 1) & (df.TECM_READY == 1)
+                         &  (df.TECP_READY == 1) & (df.TIBTID_READY == 1) & (df.TOB_READY == 1))
                         ]
         goodLS = goodLS.sort_values('RLR_RANGE')
         self.lumiRange = self.join_ranges(goodLS.RLR_SECTION_FROM.tolist(),  goodLS.RLR_SECTION_TO.tolist())
@@ -137,12 +138,12 @@ class RunResgister():
                 start = LSFrom[i]
                 end = LSTo[i]
                 continue
-            if LSFrom[i] == LSTo[i-1] +1:
+            if LSFrom[i] == end +1:
                 end = LSTo[i]
             else :
                 LSRange.append([start, end])
-                start = None
-                end = None
+                start = LSFrom[i]
+                end = LSTo[i]
         LSRange.append([start, end])
         return LSRange
 
@@ -264,7 +265,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     runs = args.runs
     runinfo = defaultdict(list)
-    
+
     for r in runs:
         rr = RunResgister(r)
         validrun = rr.Run()
