@@ -34,7 +34,7 @@ def PrintCollisionElog(r):
     if r['LSs'] is None:
         fprint("No Physically meaningful LS range")
     else:
-        fprint("Physically meaningful LS range: %s" % r['LS'])
+        fprint("Physically meaningful LS range: %s" % r['LSs'])
     fprint("L1 key: %s" % OMSGetL1Key(r['run']))
     fprint("")
     fprint("L1A Physics rate: <++>kHz")
@@ -56,7 +56,7 @@ def PrintCosmicElog(r):
     fprint("## %s Run : %d -- L1T %s" % (r['type'], r['run'], r['L1T']) )
     fprint('')
     fprint("Detector components: %s" % r['DetComp'])
-    fprint("Physically meaningful LS range: %s" % r['LS'])
+    fprint("Physically meaningful LS range: %s" % r['LSs'])
     fprint("L1 key: %s" % OMSGetL1Key(r['run']))
     fprint("")
     fprint("L1A Physics rate: <++>Hz")
