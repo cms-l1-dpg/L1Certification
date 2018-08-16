@@ -17,6 +17,12 @@ The PFE shifters are required to follow the [instruction](https://twiki.cern.ch/
 * CERN account to enable you login to lxplus via ssh
 * A web browser on your laptop
 * git on your laptop to check out code
+* wget on your laptop to download DQM root file
+  * For macOS, you can install wget via brew
+  ```shell
+  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  brew install wget --with-libressl
+  ```
 * ROOT on your laptop
   * You can download the binary version of ROOT from [here](https://root.cern.ch/downloading-root).
 * Python on your laptop
@@ -70,10 +76,10 @@ Now, to start the certification, you run `python PFE_Shifter.py `. The code
 will print out an elog file for you in format as Elog_MMDD_HHMM.log. When it is
 ready, you will see the below:
 ```shell
-Elog file Elog_0716_1633.log is ready! Open a new terminate to edit the file...
+Elog file Elog_0716_1633.log is ready! Open a new terminal to edit the file...
 Press Enter to start the shift!
 ```
-Open a new terminate to edit the file.
+Open a new terminal to edit the file.
 
 You might see something as below:
 ```

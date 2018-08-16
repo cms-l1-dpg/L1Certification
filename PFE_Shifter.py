@@ -128,7 +128,7 @@ if __name__ == "__main__":
         outfile.write('---------------------------------------------------------------------\n')
         outfile.close()
 
-    print("Elog file %s is ready! Open a new terminate to edit the file... " % filename)
+    print("Elog file %s is ready! Open a new terminal to edit the file... " % filename)
 
     ## Start the shift
     raw_input("Press Enter to start the shift!")
