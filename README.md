@@ -1,4 +1,4 @@
-# L1PFE_OMS
+# L1Certification
 
 **You should follow the instruction twiki for your very first shift to
 understand the precedure. Only use this script to speed up the process later.
@@ -29,7 +29,7 @@ The PFE shifters are required to follow the [instruction](https://twiki.cern.ch/
   * The scripts only uses Python Standard Library, which should comes with Python. If you have package missing, you can install it with pip.
 
 You can check out the code to your laptop via
-`git clone https://github.com/cms-l1-dpg/L1PFE_OMS.git`
+`git clone https://github.com/cms-l1-dpg/L1Certification.git`
 
 ## Start of shift
 <span style="color:red">You should always follow the instruction twiki.</span>
@@ -45,8 +45,8 @@ cmsrel CMSSW_10_0_0
 cd CMSSW_10_0_0/src
 cmsenv
 ## Checkout the code
-git clone https://github.com/cms-l1-dpg/L1PFE_OMS.git
-cd L1PFE_OMS
+git clone https://github.com/cms-l1-dpg/L1Certification.git
+cd L1Certification/PFE_OMS
 ```
 Run the run register script
 `python PFE_RR.py 306091 XXXXXX XXXXXX`
@@ -64,8 +64,8 @@ Go to your laptop and make sure you have your grid certificate stored in
 ~/.globus. If not, please follow the [instruction](https://ca.cern.ch/ca/help/?kbid=024010).
 Create a working directory for you and follow the below commends
 ```shell
-git clone https://github.com/cms-l1-dpg/L1PFE_OMS.git
-cd L1PFE_OMS
+git clone https://github.com/cms-l1-dpg/L1Certification.git
+cd L1Certification/PFE_OMS
 source setup.(c)sh #Depending on your shell
 scp lxplus.cern.ch:$PATH_TO_JSON .
 ```
