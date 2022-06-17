@@ -34,7 +34,7 @@ You can check out the code to your laptop via:
 
 If you intend to develop and commit code, it is better to clone via ssh:
 
-`git@github.com:cms-l1-dpg/L1Certification.git`
+`git clone git@github.com:cms-l1-dpg/L1Certification.git`
 
 For this you will need to follow the instructions for adding an ssh key to your gitHub account, if you don't have one already:
 https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
