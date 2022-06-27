@@ -194,7 +194,7 @@ def config_input():
     tmp = f.read(19)
     tmprun = f.readline()
     tmprun = tmprun.strip("\n")
-    if tmperr in cond1:
+    if tmprun in cond1:
         options = options + run_dur
 
     tmp = f.read(40)
