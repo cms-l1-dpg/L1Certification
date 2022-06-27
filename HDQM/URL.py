@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(description = "A browser opening program")
 parser.add_argument("-s", dest='search', type=str, nargs = 3, metavar = ('plot_title', 'first_run', 'last_run'),
 help = "Opens Browser for plots of title provided within range given.", default=None )
 parser.add_argument('--int', required=False, help = "Prompts an interactive feature allowing for the direct input of each option for graphs.")
-#parser.add_argument('--config', type=str, nargs = 1, required=False, metavar = ('pd'), help = "Input name of primary data set", default='SingleMuon')
+parser.add_argument('--con', dest='config', required =False, type=str, help = "Opens and uses information from URLCONFIG.txt to generate Link")
 #parser.add_argument('--ps', type=str, nargs = 1, required=False, metavar = ('ps'), help = "Not to be used ",default='PromptReco')
 #parser.add_argument('--opt', type=int, nargs='*', metavar = ('options'), default = (0,0,0,0,0,0,0))
 args = parser.parse_args()
@@ -72,7 +72,7 @@ def url_search():
                       user_input['last_run']+optionurl+user_input['opt']+"&"+\
                       user_input['plot_title']
         print(official_url)
-        #webbrowser.open(official_url)
+        webbrowser.open(official_url)
     if args.int:
         user_input = get_input()
         official_url=url+user_input['subsys']+pdurl+user_input['pd']+\
@@ -80,7 +80,15 @@ def url_search():
                       user_input['last_run']+optionurl+user_input['opt']+"&"+\
                       user_input['plot_title']
         print(official_url)
-        #webbrowser.open(official_url)
+        webbrowser.open(official_url)
+    if args.config:
+        user_input = config_input()
+        official_url=url+user_input['subsys']+pdurl+user_input['pd']+\
+                      psurl+user_input['ps']+rangeurl+user_input['first_run']+comma+\
+                      user_input['last_run']+optionurl+user_input['opt']+"&"+\
+                      user_input['plot_title']
+        print(official_url)
+        webbrowser.open(official_url) 
 
 def get_input():
     options = 0
@@ -145,6 +153,82 @@ def get_input():
     #print(optionurl + opt)
     return output_dict
 
+def config_input():
+    cond1 = ["1","Yes","yes","Y","y"]
+
+    f = open('URLCONFIG.txt')
+    tmp = f.read(12)
+    plot_title = f.readline()
+    plot_title = plot_title.strip("\n")
+    tmp = f.read(11)
+    subsys = f.readline()
+    subsys = subsys.strip("\n")
+    tmp = f.read(17)
+    pd = f.readline()
+    pd = pd.strip("\n")
+    tmp = f.read(19)
+    ps = f.readline()
+    ps = ps.strip("\n")
+    tmp = f.read(11)
+    first_run = f.readline()
+    first_run = first_run.strip("\n")
+    tmp = f.read(10)
+    last_run = f.readline()
+    last_run = last_run.strip("\n")
+
+    
+    options = 0
+    
+    tmp = f.read(17)
+    tmperr = f.readline()
+    tmperr = tmperr.strip("\n")
+    if tmperr in cond1:
+        options = options + errors
+    
+    tmp = f.read(12)
+    tmpfill = f.readline()
+    tmpfill = tmpfill.strip("\n")
+    if tmpfill in cond1:
+        options = options + fills
+
+    tmp = f.read(19)
+    tmprun = f.readline()
+    tmprun = tmprun.strip("\n")
+    if tmperr in cond1:
+        options = options + run_dur
+
+    tmp = f.read(40)
+    tmpproprun = f.readline()
+    tmpproprun = tmpproprun.strip("\n")
+    if tmpproprun in cond1:
+        options = options + binwid_prop_run_dur
+
+    tmp = f.read(48)
+    tmpdellum = f.readline()
+    tmpdellum = tmpdellum.strip("\n")
+    if tmpdellum in cond1:
+        options = options + binwid_prop_del_lum
+
+    tmp = f.read(20)
+    tmpdtmplt = f.readline()
+    tmpdtmplt = tmpdtmplt.strip("\n")
+    if tmpdtmplt in cond1:
+        options = options + datetimeplt
+
+    tmp = f.read(23)
+    tmpreg = f.readline()
+    tmpreg = tmpreg.strip("\n")
+    if tmpreg in cond1:
+        options = options + regression
+
+    f.close()
+
+    opt = str(options)
+    
+    output_dict = {'subsys':subsys, 'pd':pd, 'ps':ps, 'first_run':first_run, 'last_run':last_run, 'plot_title':plot_title, 'opt':opt}
+    
+    return output_dict
 
 if __name__ == '__main__':
     url_search()
+

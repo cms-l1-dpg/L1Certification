@@ -1,0 +1,13 @@
+Plot_Title: TurnOn_50Percent
+Subsystem: L1T
+Primary_Dataset: SingleMuon
+Processing_String: PromptReco
+First_Run: 315555
+Last_Run: 315655
+Show_Error_Bars: Yes
+Show_Fills: Yes
+Show_Run_Duration: No
+Bin_Width_Proportional_to_Run_Duration: No
+Bin_Width_Proportional_to_Delivered_Luminosity: No
+Show_Datetime_plot: No
+Show_Regression_Lines: No
