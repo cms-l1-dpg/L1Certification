@@ -3,6 +3,7 @@ import string
 import numpy
 import argparse
 import os
+import importlib
 
 #Establishing Option values
 errors=1
@@ -25,9 +26,8 @@ parser = argparse.ArgumentParser(description = "A browser opening program")
 parser.add_argument("-s", dest='search', type=str, nargs = 3, metavar = ('plot_title', 'first_run', 'last_run'),
 help = "Opens Browser for plots of title provided within range given.", default=None )
 parser.add_argument('--int', required=False, help = "Prompts an interactive feature allowing for the direct input of each option for graphs.")
-parser.add_argument('--con', dest='config', required =True, type=str, help = "Opens and uses information from URLCONFIG.txt to generate Link")
-#parser.add_argument('--ps', type=str, nargs = 1, required=False, metavar = ('ps'), help = "Not to be used ",default='PromptReco')
-#parser.add_argument('--opt', type=int, nargs='*', metavar = ('options'), default = (0,0,0,0,0,0,0))
+parser.add_argument('--con', dest='config', required =False, type=str, help = "Opens and uses information from URLCONFIG.txt to generate Link")
+
 args = parser.parse_args()
 
 def url_search():
@@ -40,15 +40,7 @@ def url_search():
     optionurl = "&options="
     tsearchurl = "&search="
     
-    #initializing each interger value for options
-    #int errors
-    #int fills
-    #int run_dur
-    #int binwid_prop_run
-    #int binwid_prop_del_lum
-    #int datetimeplt
-    #int regression
-    #int options
+    
     errors=1
     fills=2
     run_dur=4
@@ -72,7 +64,7 @@ def url_search():
                       user_input['last_run']+optionurl+user_input['opt']+"&"+\
                       user_input['plot_title']
         print(official_url)
-        webbrowser.open(official_url)
+        #webbrowser.open(official_url)
     if args.int:
         user_input = get_input()
         official_url=url+user_input['subsys']+pdurl+user_input['pd']+\
@@ -80,7 +72,7 @@ def url_search():
                       user_input['last_run']+optionurl+user_input['opt']+"&"+\
                       user_input['plot_title']
         print(official_url)
-        webbrowser.open(official_url)
+        #webbrowser.open(official_url)
     if args.config:
         user_input = config_input(args.config)
         official_url=url+user_input['subsys']+pdurl+user_input['pd']+\
@@ -88,7 +80,16 @@ def url_search():
                       user_input['last_run']+optionurl+user_input['opt']+"&"+\
                       user_input['plot_title']
         print(official_url)
-        webbrowser.open(official_url) 
+        #webbrowser.open(official_url)
+
+    else:
+        user_input = get_input()
+        official_url=url+user_input['subsys']+pdurl+user_input['pd']+\
+                      psurl+user_input['ps']+rangeurl+user_input['first_run']+comma+\
+                      user_input['last_run']+optionurl+user_input['opt']+"&"+\
+                      user_input['plot_title']
+        print(official_url)
+        #webbrowser.open(official_url)  
 
 def get_input():
     options = 0
@@ -110,125 +111,71 @@ def get_input():
     print("For the following questions respond 1 for yes, 0 for no.")
     
     check = input("Do you wish to show errors on your plots?: ")
-    #print(check, check==1)
-    #exit()
     if check in cond1:
         options += errors
-        #print(options)
-    #    check = 0
-    #exit()     
+        
     check = input("Do you wish to show fill on your plots?: ")
     if check in cond1:
         options += fills
-    #    check = 0
     
     check = input("Do you wish to show run durations on your plots?: ")
     if check in cond1:
         options += run_dur
-    #    check = 0
+
     
     check = input("Do you wish to set bin width to be proportional to run duration on your plots?: ")
     if check in cond1:
         options += binwid_prop_run
-    #    check = 0
     
     check = input("Do you wish to set bin width to be proportional to delivered luminosity on your plots?: ")
     if check in cond1:
         options += binwid_prop_del_lum
-    #    check = 0
     
     check = input("Do you wish to show date time plots?: ")
     if check in cond1:
         options += datetimeplt
-    #    check = 0
     
     check = input("Do you wish to show regression lines on your plots?: ")
     if check in cond1:
         options += regression
-    #    check = 0
-    
-    #print(check) 
-    #print(options)
+
     output_dict['opt'] = str(options)
-    #print(optionurl + opt)
+    
     return output_dict
 
-def config_input(config_file):
-    cond1 = ["1","Yes","yes","Y","y"]
-
-    f = open(config_file)
-    tmp = f.read(12)
-    plot_title = f.readline()
-    plot_title = plot_title.strip("\n")
-    tmp = f.read(11)
-    subsys = f.readline()
-    subsys = subsys.strip("\n")
-    tmp = f.read(17)
-    pd = f.readline()
-    pd = pd.strip("\n")
-    tmp = f.read(19)
-    ps = f.readline()
-    ps = ps.strip("\n")
-    tmp = f.read(11)
-    first_run = f.readline()
-    first_run = first_run.strip("\n")
-    tmp = f.read(10)
-    last_run = f.readline()
-    last_run = last_run.strip("\n")
-
+def config_input(cfg):
+    cfg_name = cfg.replace('/','.').replace('.py','')
+    output_dict = importlib.import_module(cfg_name).config
     
+    cond1 = ['1','Yes','yes','Y','y']
     options = 0
     
-    tmp = f.read(17)
-    tmperr = f.readline()
-    tmperr = tmperr.strip("\n")
-    if tmperr in cond1:
+    if output_dict['Show_Error'] in cond1:
         options += errors
-    
-    tmp = f.read(12)
-    tmpfill = f.readline()
-    tmpfill = tmpfill.strip("\n")
-    if tmpfill in cond1:
-        options += fills
 
-    tmp = f.read(19)
-    tmprun = f.readline()
-    tmprun = tmprun.strip("\n")
-    if tmprun in cond1:
-        options += run_dur
+    if output_dict['Show_Fills'] in cond1:
+        options += errors
 
-    tmp = f.read(40)
-    tmpproprun = f.readline()
-    tmpproprun = tmpproprun.strip("\n")
-    if tmpproprun in cond1:
-        options += binwid_prop_run_dur
+    if output_dict['Show_Run_Duration'] in cond1:
+        options += errors
 
-    tmp = f.read(48)
-    tmpdellum = f.readline()
-    tmpdellum = tmpdellum.strip("\n")
-    if tmpdellum in cond1:
-        options += binwid_prop_del_lum
+    if output_dict['Bin_Width_Proportional_to_Run_Duration'] in cond1:
+        options += errors
 
-    tmp = f.read(20)
-    tmpdtmplt = f.readline()
-    tmpdtmplt = tmpdtmplt.strip("\n")
-    if tmpdtmplt in cond1:
-        options += datetimeplt
+    if output_dict['Bin_Width_Proportional_to_Delivered_Luminosity'] in cond1:
+        options += errors
 
-    tmp = f.read(23)
-    tmpreg = f.readline()
-    tmpreg = tmpreg.strip("\n")
-    if tmpreg in cond1:
-        options += regression
+    if output_dict['Show_Datetime_Plot'] in cond1:
+        options += errors
 
-    f.close()
+    if output_dict['Show_Regression_Lines'] in cond1:
+        options += errors
+        
+    output_dict['opt'] = str(options)
 
-    opt = str(options)
-    
-    output_dict = {'subsys':subsys, 'pd':pd, 'ps':ps, 'first_run':first_run, 'last_run':last_run, 'plot_title':plot_title, 'opt':opt}
     
     return output_dict
-
+    
 if __name__ == '__main__':
     url_search()
 
