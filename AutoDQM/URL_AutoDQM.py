@@ -14,7 +14,7 @@ import time
 
 URL_BASE = 'https://cmsweb-testbed.cern.ch/dqm/autodqm/plots'
 # URL_BASE = 'http://abrinke1autodqm.cern.ch:8083/dqm/autodqm/plots'
-SOURCE    = 'Offline'
+SOURCE    = 'Online'
 SUBSYSTEM = 'L1T_shift'
 DATA_ERA = 'Run2022'    if SOURCE == 'Offline' else None
 REF_ERA  = 'Run2018'    if SOURCE == 'Offline' else None
