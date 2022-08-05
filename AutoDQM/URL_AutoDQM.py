@@ -81,10 +81,12 @@ if __name__ == '__main__':
     parser.add_argument('-pd',   '--dataset',   type=str, default=DATASET,   help='Primary dataset ("sample") (e.g. SingleMuon)')
     parser.add_argument('-runD', '--data_runs', type=str, default=DATA_RUNS, help='Data run(s), separated by , or _ (no spaces!)')
     parser.add_argument('-runR', '--ref_runs',  type=str, default=REF_RUN,   help='Reference run(s), separated by , or _ (no spaces!)')
+    parser.add_argument('-maxR', '--max_ref',   type=int, default=-1,        help='Maximum number of reference runs to use for each data run')
     parser.add_argument('-slp',  '--sleep',     type=int, default=15,        help='Wait time between opening new tabs')
     
     parser.add_argument('-mult', '--multiref',  action='store_true', help='Compare each data run to all references simultaneously')
     parser.add_argument('-rec',  '--recursive', action='store_true', help='Use other data runs as reference runs')
+    parser.add_argument('-pre',  '--prev_ref',  action='store_true', help='Use only reference runs prior to data run')
     parser.add_argument('-dqm',  '--open_dqm',  action='store_true', help='Open Online or Offline DQM pages for each data and reference run')
     parser.add_argument('-deb',  '--debug',     action='store_true', help='Only print URLs and do not open them')
     parser.add_argument('-vrb',  '--verbose',   action='store_true', help='Include verbose printouts')
@@ -94,13 +96,39 @@ if __name__ == '__main__':
     ## Extract data and reference run lists
     data_run_str = args.data_runs
     ref_run_str  = args.ref_runs if not args.recursive else args.data_runs
+
+    data_runs, ref_runs = None, None
+    ## If list has a '.' in it, probably an input file
+    for in_run_str in [data_run_str, ref_run_str]:
+        if '.' in in_run_str or '/' in in_run_str:
+            try:
+                print('\nReading input file %s' % in_run_str)
+                with open(in_run_str) as in_file:
+                    in_text = in_file.readlines()
+                    in_runs = [re.sub("[^0-9]", "", r) for r in in_text]
+                    in_file.close()
+                if in_run_str == data_run_str:
+                    data_runs = [r for r in in_runs if len(r) == 6 and int(r) > 100000]
+                    if args.prev_ref:
+                        data_runs.sort()
+                else:
+                    ref_runs = [r for r in in_runs if len(r) == 6 and int(r) > 100000]
+                if args.recursive:
+                    ref_runs = data_runs.copy()
+                    break
+            except:
+                print('\nCannot parse input file %s, or file does not exist.' % in_run_str)
+                print('"data_runs" or "ref_runs" contained a "." or "/", so it is a file, right?')
+                sys.exit()
+
+    ## Otherwise, parse input runs as a list from the command line
     try:
-        data_runs = [r for r in re.split('\W+|_', data_run_str) if len(r) == 6 and int(r) > 100000]
-        ref_runs  = [r for r in re.split('\W+|_', ref_run_str)  if len(r) == 6 and int(r) > 100000]
-        if args.multiref and len(ref_runs) < 2:
+        if not data_runs: data_runs = [r for r in re.split('\W+|_', data_run_str) if len(r) == 6 and int(r) > 100000]
+        if not ref_runs:  ref_runs  = [r for r in re.split('\W+|_', ref_run_str)  if len(r) == 6 and int(r) > 100000]
+        if args.multiref and args.ref_runs == REF_RUN and not args.recursive:
             ref_runs = [r for r in re.split('\W+|_', REF_RUNS)  if len(r) == 6 and int(r) > 100000]
     except:
-        print('Cannot parse data_runs (%s) or ref_runs (%s or %s)' % (data_run_str, ref_run_str, REF_RUNS))
+        print('\nCannot parse data_runs (%s) or ref_runs (%s or %s)' % (data_run_str, ref_run_str, REF_RUNS))
         print(re.split('\W+|_', data_run_str))
         print(re.split('\W+|_', ref_run_str))
         print(re.split('\W+|_', REF_RUNS))
@@ -144,12 +172,33 @@ if __name__ == '__main__':
     for dRun in data_runs:
 
         ## Pick one or more reference runs
-        if args.multiref:
+        if args.prev_ref:
+            ## Select only reference runs earlier than data, sorted highest to lowest
+            ref_runs_int = [int(r) for r in ref_runs if int(r) < int(dRun)]
+            ref_runs_int.sort(reverse=True)
+            if len(ref_runs_int) == 0:
+                print('\n*** Found no reference runs prior to %s - skipping ***' % dRun)
+                continue
+            if args.multiref:
+                rRun = '_'.join([str(r) for r in ref_runs_int])
+            else:
+                rRun = str(ref_runs_int[0])
+        elif args.multiref:
+            ## Concatenate all reference runs
             rRun = '_'.join([r for r in ref_runs if r != dRun])
+        elif args.prev_ref:
+            ## Choose closest earlier run as reference
+            rRun = str(ref_RunsI[0])
         elif args.recursive:
+            ## Choose previous run in list as reference
             rRun = ref_runs[ref_runs.index(dRun) - 1]
         else:
+            ## Choose reference run with same position in list as data run
             rRun = ref_runs[data_runs.index(dRun) % len(ref_runs)]
+
+        ## If numer of reference runs is limited, truncate to first N in list
+        if args.max_ref > 0:
+            rRun = rRun[:(7*args.max_ref - 1)]
 
         if args.verbose:
             print('\nComparing dRun %s vs. rRun %s' % (dRun, rRun))
