@@ -34,12 +34,16 @@ REF_RUNS = '324997, 325001, 325022, 325057, 325097, 325099, 325117, 325159, 3251
 
 ## Mapping of subsystem to locations in Online DQM
 DQM_MAP = {'L1T_shift': 'L1T;root=Quick%20collection',
-           'EMTF': 'Everything;root=L1T/L1TStage2EMTF'}
+           'EMTF': 'Everything;root=L1T/L1TStage2EMTF',
+           'DT': 'Everything;root=DT/02-Segments',
+           'NULL': 'Everything'}
 
 
 ## *** Supporting functions for constructing Online and Offline DQM URLs ***
 
 def form_online_dqm_url(dRun, rRun, subsystem):
+    if not subsystem in DQM_MAP.keys():
+        subsystem = 'NULL'
     dqm_url = 'https://cmsweb.cern.ch/dqm/online/start?runnr=%s;' % dRun
     dqm_url += 'dataset=/Global/Online/ALL;sampletype=online_data;filter=all;'
     dqm_url += 'referencepos=overlay;referenceshow=all;referencenorm=True;'
@@ -87,7 +91,8 @@ if __name__ == '__main__':
     parser.add_argument('-mult', '--multiref',  action='store_true', help='Compare each data run to all references simultaneously')
     parser.add_argument('-rec',  '--recursive', action='store_true', help='Use other data runs as reference runs')
     parser.add_argument('-pre',  '--prev_ref',  action='store_true', help='Use only reference runs prior to data run')
-    parser.add_argument('-dqm',  '--open_dqm',  action='store_true', help='Open Online or Offline DQM pages for each data and reference run')
+    parser.add_argument('-dqmD', '--dqm_data',  action='store_true', help='Open Online or Offline DQM pages for each data run')
+    parser.add_argument('-dqmR', '--dqm_ref',   action='store_true', help='Open Online or Offline DQM pages for each reference run')
     parser.add_argument('-deb',  '--debug',     action='store_true', help='Only print URLs and do not open them')
     parser.add_argument('-vrb',  '--verbose',   action='store_true', help='Include verbose printouts')
 
@@ -140,14 +145,14 @@ if __name__ == '__main__':
     print(ref_runs)
 
     ## Warnings about opening central DQM pages (AWB 2022.07.29)
-    if args.open_dqm:
+    if args.dqm_data or args.dqm_ref:
         if not args.subsystem in DQM_MAP.keys():
-            print('\nWARNING: open_dqm option does not work for %s subsystem! Will open L1T page instead.' % args.subsystem)
+            print('\nWARNING: dqm_data and dqm_ref options do not work for %s subsystem! Will open top level page instead.' % args.subsystem)
         if args.source != 'Online':
-            print('\nWARNING: open_dqm only works for Online DQM. Will open Online DQM page.')
+            print('\nWARNING: dqm_data and dqm_ref only work for Online DQM. Will open Online DQM page.')
 
     ## Open DQM pages for reference runs
-    if args.open_dqm and args.subsystem in DQM_MAP.keys() and not args.recursive:
+    if args.dqm_ref and not args.recursive:
         print('\n\n***** PLEASE OPEN A NEW BROWSER WINDOW NOW! *****')
         print('Will wait 15 seconds, or until you hit "Enter"')
         aa, bb, cc = select.select( [sys.stdin], [], [], 15 )
@@ -232,7 +237,7 @@ if __name__ == '__main__':
             webbrowser.open(auto_url, new=firstRun, autoraise=firstRun)
 
         ## Construct the central DQM URL and open the web browser for data runs
-        if args.open_dqm and args.subsystem in DQM_MAP.keys():
+        if args.dqm_data:
             ## For now, only open Online DQM even if AutoDQM is running on Offline DQM (AWB 2022.07.29)
             dqm_url = form_online_dqm_url(dRun, rRun, args.subsystem)
             print('\n*** Opening Online DQM for data run %s, reference run(s) %s ***' % (dRun, ', '.join(rRun.split('_')[:4])))
