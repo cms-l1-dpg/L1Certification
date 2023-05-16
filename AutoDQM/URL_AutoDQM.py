@@ -15,8 +15,8 @@ import time
 ###  Default options, can be modified at the command line  ###
 ##############################################################
 
-# URL_BASE = 'https://cmsweb-testbed.cern.ch/dqm/autodqm/plots'
-URL_BASE = 'http://abrinke1autodqm.cern.ch:8083/dqm/autodqm/plots'
+URL_BASE = 'https://cmsweb-testbed.cern.ch/dqm/autodqm/plots'
+# URL_BASE = 'http://abrinke1autodqm.cern.ch:8083/dqm/autodqm/plots'
 SOURCE    = 'Online'
 SUBSYSTEM = 'L1T_shift'
 DATA_ERA = 'Run2022'
