@@ -88,7 +88,7 @@ if __name__ == '__main__':
     parser.add_argument('-maxR', '--max_ref',   type=int, default=-1,        help='Maximum number of reference runs to use for each data run')
     parser.add_argument('-slp',  '--sleep',     type=int, default=15,        help='Wait time between opening new tabs')
     
-    parser.add_argument('-mult', '--multiref',  action='store_true', help='Compare each data run to all references simultaneously')
+    parser.add_argument('-mult', '--multiref',  action='store_true', help='Compare each data run to multiple references simultaneously')
     parser.add_argument('-rec',  '--recursive', action='store_true', help='Use other data runs as reference runs')
     parser.add_argument('-pre',  '--prev_ref',  action='store_true', help='Use only reference runs prior to data run')
     parser.add_argument('-dqmD', '--dqm_data',  action='store_true', help='Open Online or Offline DQM pages for each data run')
@@ -101,6 +101,9 @@ if __name__ == '__main__':
     ## Extract data and reference run lists
     data_run_str = args.data_runs
     ref_run_str  = args.ref_runs if not args.recursive else args.data_runs
+    ## When running "recursively", include a few extra reference runs to validate the first data runs
+    if args.recursive and args.ref_runs != REF_RUN:
+        ref_run_str += (','+args.ref_runs)
 
     data_runs, ref_runs = None, None
     ## If list has a '.' in it, probably an input file
