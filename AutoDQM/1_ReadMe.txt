@@ -1,0 +1,3 @@
+#python3 URL_AutoDQM.py --source Online --subsystem L1T_shift --data_runs 367615,367618,367619 --ref_runs 367515,367516,367553,367554 --multiref --max_ref 5 --prev_ref --recursive --dqm_data --debug
+
+python3 URL_AutoDQM.py --source Online --subsystem L1T_shift --data_runs 367730,367742,367758  --ref_runs 367553,367554  --data_era Run2023C_v2 --ref_era Run2023C_v2 --multiref --max_ref 5 --dqm_data --oms_data

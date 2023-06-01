@@ -33,26 +33,33 @@ REF_RUN = '325022'
 REF_RUNS = '324997, 325001, 325022, 325057, 325097, 325099, 325117, 325159, 325170, 325172'
 
 ## Mapping of subsystem to locations in Online DQM
-DQM_MAP = {'L1T_shift': 'L1T;root=Quick%20collection',
-           'EMTF': 'Everything;root=L1T/L1TStage2EMTF',
-           'DT': 'Everything;root=DT/02-Segments',
-           'NULL': 'Everything'}
+DQM_MAP = {
+    #'L1T_shift': 'L1T;root=Quick%20collection',
+    'L1T_shift'    : 'Shift;size=L;root=00%20Shift/L1T',
+    'L1TEMU_shift' : 'Shift;size=L;root=00%20Shift/L1TEMU',
+    'L1T_shift/Efficiency'    : 'Shift;size=XL;root=00%20Shift/L1T/Efficiency',
+    'L1T_shift/Resolution'    : 'Shift;size=XL;root=00%20Shift/L1T/Resolution',
+    'EMTF'         : 'Everything;root=L1T/L1TStage2EMTF',
+    'DT'           : 'Everything;root=DT/02-Segments',
+    'NULL'         : 'Everything'
+}
 
 
 ## *** Supporting functions for constructing Online and Offline DQM URLs ***
 
-def form_online_dqm_url(dRun, rRun, subsystem):
+def form_online_dqm_url(dRun, rRun, subsystem, refNormalize=True):
     if not subsystem in DQM_MAP.keys():
         subsystem = 'NULL'
     dqm_url = 'https://cmsweb.cern.ch/dqm/online/start?runnr=%s;' % dRun
     dqm_url += 'dataset=/Global/Online/ALL;sampletype=online_data;filter=all;'
-    dqm_url += 'referencepos=overlay;referenceshow=all;referencenorm=True;'
+    dqm_url += 'referencepos=overlay;referenceshow=all;referencenorm=%s;' % (refNormalize)
     for iRef in range(min(4, len(rRun.split('_')))):
         dqm_url += 'referenceobj%d=other%%3A%s%%3A%%3A%%3A;' % (iRef+1, rRun.split('_')[iRef])
     dqm_url += 'search=;striptype=object;stripruns=;stripaxis=run;stripomit=none;'
     dqm_url += 'workspace=%s;focus=;zoom=no;' % DQM_MAP[subsystem]
 
     return dqm_url
+
 
 # ## Not yet ready (AWB 2022.07.29)
 # def form_offline_dqm_url(dRun, rRun, dataset, subsystem):
@@ -66,6 +73,50 @@ def form_online_dqm_url(dRun, rRun, subsystem):
 
 #     return dqm_url
 
+def form_offline_dqm_url(dRun, rRun, dataset, workspace, dRun_era, rRun_era, refNormalize=True):
+    
+    # https://cmsweb.cern.ch/dqm/offline/start?runnr=367355;dataset=/Muon0/Run2023C-PromptReco-v1/DQMIO;sampletype=offline_data;filter=all;referencepos=overlay;referenceshow=customise;referencenorm=True;referenceobj1=other%3A362696%3A/Muon/Run2022G-PromptReco-v1/DQMIO%3A%3A;referenceobj2=other%3A325170%3A/SingleMuon/Run2018D-PromptReco-v2/DQMIO%3A%3A;referenceobj3=none;referenceobj4=none;search=;striptype=object;stripruns=;stripaxis=run;stripomit=none;workspace=Shift;size=XL;root=00%20Shift/L1T/Efficiency;focus=;zoom=no;.
+    
+    dRun_era_1             = dRun_era.replace('-', '_')
+    dRun_era_toUse         = dRun_era_1.split('_')[0]
+    dRun_era_version_toUse = dRun_era_1.split('_')[-1] if '_' in dRun_era_1 else 'v1'
+    #print(f"{dRun_era = }, {dRun_era_toUse = }, { = }, ")
+    
+    rRun_list = rRun.split('_')
+    rRun_list_toUse = [
+        #['362696', '/%s/Run2022G-PromptReco-v1/DQMIO' % ('Muon'       if 'Mu' in dataset else 'EGamma')],
+        #['325170', '/%s/Run2018D-PromptReco-v2/DQMIO' % ('SingleMuon' if 'Mu' in dataset else 'EGamma')]
+    ]
+    if len(rRun_list) > 0:
+        rRun_era_1             = rRun_era.replace('-', '_')
+        rRun_era_toUse         = rRun_era_1.split('_')[0]
+        rRun_era_version_toUse = rRun_era_1.split('_')[-1] if '_' in rRun_era_1 else 'v1'
+        for iRefRun in range(len(rRun_list)):
+            rRun_list_toUse.append([str(rRun_list[iRefRun]), '/%s/%s-PromptReco-%s/DQMIO' % (dataset, rRun_era_toUse, rRun_era_version_toUse)])
+    
+    dqm_url = 'https://cmsweb.cern.ch/dqm/offline/start?runnr=%s;' % dRun
+    dqm_url += 'dataset=/%s/%s-PromptReco-%s/DQMIO;sampletype=offline_data;filter=all;' % (dataset, dRun_era_toUse, dRun_era_version_toUse)
+    dqm_url += 'referencepos=overlay;referenceshow=all;referencenorm=%s;' % (refNormalize)
+        
+    #for iRef in range(min(4, len(rRun.split('_')))):
+    #    dqm_url += 'referenceobj%d=other%%3A%s%%3A%%3A%%3A/%s/Run2018D-PromptReco-v2/DQMIO%%3A%%3A;' % (iRef+1, rRun.split('_')[iRef])    
+    for iRef in range(min(4, len(rRun_list_toUse))):
+        dqm_url += 'referenceobj%d=other%%3A%s%%3A%s%%3A%%3A;' % (iRef+1, rRun_list_toUse[iRef][0], rRun_list_toUse[iRef][1])
+        
+    dqm_url += 'search=;striptype=object;stripruns=;stripaxis=run;stripomit=none;'
+    dqm_url += 'workspace=%s;focus=;zoom=no;' % DQM_MAP[workspace] 
+    
+    return dqm_url
+
+
+
+## Online Monitoring System (OMS) url
+def form_oms_url(dRun):
+    # https://cmsoms.cern.ch/cms/triggers/l1_rates?cms_run=367267&props.11273_11270.selectedCells=L1A%20physics:2&props.11275_11270.selectedCells=Total:2&props.11274_11270.selectedCells=24:512,63:512,101:512,168:512,194:512,206:512,226:512,270:512,309:512,313:512,336:512,386:512,404:512
+    oms_url = f'https://cmsoms.cern.ch/cms/triggers/l1_rates?cms_run={str(dRun)}&props.11273_11270.selectedCells=L1A%20physics:2&props.11275_11270.selectedCells=Total:2&props.11274_11270.selectedCells=24:512,63:512,101:512,168:512,194:512,206:512,226:512,270:512,309:512,313:512,336:512,386:512,404:512' 
+
+    return oms_url
+    
 
 ###############################################################
 ###  Open AutoDQM web pages according to specified options  ###
@@ -93,6 +144,7 @@ if __name__ == '__main__':
     parser.add_argument('-pre',  '--prev_ref',  action='store_true', help='Use only reference runs prior to data run')
     parser.add_argument('-dqmD', '--dqm_data',  action='store_true', help='Open Online or Offline DQM pages for each data run')
     parser.add_argument('-dqmR', '--dqm_ref',   action='store_true', help='Open Online or Offline DQM pages for each reference run')
+    parser.add_argument('-omsD', '--oms_data',  action='store_true', help='Open OMS page for each data run')
     parser.add_argument('-deb',  '--debug',     action='store_true', help='Only print URLs and do not open them')
     parser.add_argument('-vrb',  '--verbose',   action='store_true', help='Include verbose printouts')
 
@@ -233,9 +285,21 @@ if __name__ == '__main__':
         auto_url = '/'.join( [args.url_base, args.source, args.subsystem,
                               rSer, rSamp, rRun, dSer, dSamp, dRun] )
 
-        print('\n\n*** Opening AutoDQM for data run %s, reference run(s) %s ***' % (dRun, rRun.replace('_', ', ')))
-        print(auto_url)
+        
         firstRun = (1 if dRun == data_runs[0] else 0)
+        print('\n\n***** Opening Monitoring links for data run %s, reference run(s) %s ***' % (dRun, rRun.replace('_', ', ')))
+
+        ## Construct OMS url and open the web browser for data runs            
+        if args.oms_data:
+            oms_url = form_oms_url(dRun)
+            print('\n*** Opening Online OMS for data run %s' % (dRun))
+            print(oms_url)
+            if not args.debug:
+                webbrowser.open(oms_url, new=firstRun, autoraise=False)
+                firstRun=0
+
+        print('\n*** Opening AutoDQM for data run %s, reference run(s) %s ***' % (dRun, rRun.replace('_', ', ')))
+        print(auto_url)        
         if not args.debug:
             webbrowser.open(auto_url, new=firstRun, autoraise=firstRun)
 
@@ -248,6 +312,28 @@ if __name__ == '__main__':
             if not args.debug:
                 webbrowser.open(dqm_url, new=0, autoraise=False)
 
+            if 'L1T' in args.subsystem:
+                dqm_url_L1TEmu = form_online_dqm_url(dRun, rRun, 'L1TEMU_shift', refNormalize=False)  
+                print(dqm_url_L1TEmu)
+                if not args.debug:
+                    webbrowser.open(dqm_url_L1TEmu, new=0, autoraise=False)
+
+                dqm_url_L1TEffi_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
+                dqm_url_L1TReso_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
+                dqm_url_L1TEffi_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
+                dqm_url_L1TReso_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
+                print(dqm_url_L1TEffi_Mu)
+                print(dqm_url_L1TReso_Mu)
+                print(dqm_url_L1TEffi_EG)
+                print(dqm_url_L1TReso_EG)
+                if not args.debug:
+                    webbrowser.open(dqm_url_L1TEffi_Mu, new=0, autoraise=False)
+                    webbrowser.open(dqm_url_L1TReso_Mu, new=0, autoraise=False)
+                    webbrowser.open(dqm_url_L1TEffi_EG, new=0, autoraise=False)
+                    webbrowser.open(dqm_url_L1TReso_EG, new=0, autoraise=False)
+            
+
+                    
         ## Give AutoDQM server some time to process run before moving on to next run
         if dRun != data_runs[-1] and not args.debug:
             time.sleep(args.sleep)
