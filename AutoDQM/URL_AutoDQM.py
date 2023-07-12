@@ -118,6 +118,23 @@ def form_oms_url(dRun):
     return oms_url
     
 
+## Online Monitoring System (OMS) url
+def form_oms_dcs_url(dRun):
+    # https://cmsoms.cern.ch/cms/triggers/l1_rates?cms_run=367267&props.11273_11270.selectedCells=L1A%20physics:2&props.11275_11270.selectedCells=Total:2&props.11274_11270.selectedCells=24:512,63:512,101:512,168:512,194:512,206:512,226:512,270:512,309:512,313:512,336:512,386:512,404:512
+    # https://cmsoms.cern.ch/cms/runs/lumisection?cms_run=368229&cms_run_sequence=GLOBAL-RUN
+    oms_url = f'https://cmsoms.cern.ch/cms/runs/lumisection?cms_run={str(dRun)}&cms_run_sequence=GLOBAL-RUN' 
+
+    return oms_url
+
+## Online Monitoring System (OMS) url
+def form_oms_runreport_url(dRun):
+    # https://cmsoms.cern.ch/cms/runs/report?cms_run=370307&cms_run_sequence=GLOBAL-RUN
+    oms_url = f'https://cmsoms.cern.ch/cms/runs/report?cms_run={str(dRun)}&cms_run_sequence=GLOBAL-RUN'
+
+    return oms_url
+
+
+
 ###############################################################
 ###  Open AutoDQM web pages according to specified options  ###
 ###############################################################
@@ -291,12 +308,25 @@ if __name__ == '__main__':
 
         ## Construct OMS url and open the web browser for data runs            
         if args.oms_data:
+            oms_runreport_url = form_oms_runreport_url(dRun)
+            print('\n*** Opening Online OMS Run Report for data run %s' % (dRun))
+            print(oms_runreport_url)
+            if not args.debug:
+                webbrowser.open(oms_runreport_url, new=firstRun, autoraise=False)
+                firstRun=0
+                
+            oms_dcs_url = form_oms_dcs_url(dRun)
+            print('\n*** Opening Online OMS DCS status for data run %s' % (dRun))
+            print(oms_dcs_url)
+            if not args.debug:
+                webbrowser.open(oms_dcs_url, new=firstRun, autoraise=firstRun)
+
             oms_url = form_oms_url(dRun)
             print('\n*** Opening Online OMS for data run %s' % (dRun))
             print(oms_url)
             if not args.debug:
-                webbrowser.open(oms_url, new=firstRun, autoraise=False)
-                firstRun=0
+                webbrowser.open(oms_url, new=firstRun, autoraise=firstRun)
+                
 
         print('\n*** Opening AutoDQM for data run %s, reference run(s) %s ***' % (dRun, rRun.replace('_', ', ')))
         print(auto_url)        
