@@ -5,6 +5,7 @@
 
 import sys
 import argparse
+import subprocess
 import select
 import re
 import webbrowser
@@ -227,8 +228,9 @@ if __name__ == '__main__':
     if args.dqm_ref and not args.recursive:
         print('\n\n***** PLEASE OPEN A NEW BROWSER WINDOW NOW! *****')
         print('Will wait 15 seconds, or until you hit "Enter"')
-        aa, bb, cc = select.select( [sys.stdin], [], [], 15 )
-        [line.readline() for line in aa]  ## Necessary for second select.select below to work
+        #aa, bb, cc = select.select( [sys.stdin], [], [], 15 )
+        #[line.readline() for line in aa]  ## Necessary for second select.select below to work  # Siddhesh: Does not work on Windows OS
+        subprocess.call('read -t 15', shell=True)
 
         for rRun in ref_runs:
             ## For now, only open Online DQM even if AutoDQM is running on Offline DQM (AWB 2022.07.29)
@@ -243,9 +245,10 @@ if __name__ == '__main__':
 
     print('\n\n***** PLEASE OPEN A NEW BROWSER WINDOW NOW! *****')
     print('Will wait 15 seconds, or until you hit "Enter"')
-    xx, yy, zz = select.select( [sys.stdin], [], [], 15 )
+    #xx, yy, zz = select.select( [sys.stdin], [], [], 15 ) # Siddhesh: Does not work on Windows OS
+    subprocess.call('read -t 15', shell=True)
 
-    ## *** Loop over data runs and open web pages ***
+    ## *** Loop over data runs and open web pages *** 
     for dRun in data_runs:
 
         ## Pick one or more reference runs
