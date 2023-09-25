@@ -74,7 +74,7 @@ def form_online_dqm_url(dRun, rRun, subsystem, refNormalize=True):
 
 #     return dqm_url
 
-def form_offline_dqm_url(dRun, rRun, dataset, workspace, dRun_era, rRun_era, refNormalize=True):
+def form_offline_dqm_url(dRun, rRun, dRun_dataset, rRun_dataset, dRun_era, rRun_era, workspace, refNormalize=True):
     
     # https://cmsweb.cern.ch/dqm/offline/start?runnr=367355;dataset=/Muon0/Run2023C-PromptReco-v1/DQMIO;sampletype=offline_data;filter=all;referencepos=overlay;referenceshow=customise;referencenorm=True;referenceobj1=other%3A362696%3A/Muon/Run2022G-PromptReco-v1/DQMIO%3A%3A;referenceobj2=other%3A325170%3A/SingleMuon/Run2018D-PromptReco-v2/DQMIO%3A%3A;referenceobj3=none;referenceobj4=none;search=;striptype=object;stripruns=;stripaxis=run;stripomit=none;workspace=Shift;size=XL;root=00%20Shift/L1T/Efficiency;focus=;zoom=no;.
     
@@ -93,10 +93,10 @@ def form_offline_dqm_url(dRun, rRun, dataset, workspace, dRun_era, rRun_era, ref
         rRun_era_toUse         = rRun_era_1.split('_')[0]
         rRun_era_version_toUse = rRun_era_1.split('_')[-1] if '_' in rRun_era_1 else 'v1'
         for iRefRun in range(len(rRun_list)):
-            rRun_list_toUse.append([str(rRun_list[iRefRun]), '/%s/%s-PromptReco-%s/DQMIO' % (dataset, rRun_era_toUse, rRun_era_version_toUse)])
+            rRun_list_toUse.append([str(rRun_list[iRefRun]), '/%s/%s-PromptReco-%s/DQMIO' % (rRun_dataset, rRun_era_toUse, rRun_era_version_toUse)])
     
     dqm_url = 'https://cmsweb.cern.ch/dqm/offline/start?runnr=%s;' % dRun
-    dqm_url += 'dataset=/%s/%s-PromptReco-%s/DQMIO;sampletype=offline_data;filter=all;' % (dataset, dRun_era_toUse, dRun_era_version_toUse)
+    dqm_url += 'dataset=/%s/%s-PromptReco-%s/DQMIO;sampletype=offline_data;filter=all;' % (dRun_dataset, dRun_era_toUse, dRun_era_version_toUse)
     dqm_url += 'referencepos=overlay;referenceshow=all;referencenorm=%s;' % (refNormalize)
         
     #for iRef in range(min(4, len(rRun.split('_')))):
@@ -114,7 +114,8 @@ def form_offline_dqm_url(dRun, rRun, dataset, workspace, dRun_era, rRun_era, ref
 ## Online Monitoring System (OMS) url
 def form_oms_url(dRun):
     # https://cmsoms.cern.ch/cms/triggers/l1_rates?cms_run=367267&props.11273_11270.selectedCells=L1A%20physics:2&props.11275_11270.selectedCells=Total:2&props.11274_11270.selectedCells=24:512,63:512,101:512,168:512,194:512,206:512,226:512,270:512,309:512,313:512,336:512,386:512,404:512
-    oms_url = f'https://cmsoms.cern.ch/cms/triggers/l1_rates?cms_run={str(dRun)}&props.11273_11270.selectedCells=L1A%20physics:2&props.11275_11270.selectedCells=Total:2&props.11274_11270.selectedCells=24:512,63:512,101:512,168:512,194:512,206:512,226:512,270:512,309:512,313:512,336:512,386:512,404:512' 
+    #oms_url = f'https://cmsoms.cern.ch/cms/triggers/l1_rates?cms_run={str(dRun)}&props.11273_11270.selectedCells=L1A%20physics:2&props.11275_11270.selectedCells=Total:2&props.11274_11270.selectedCells=24:512,63:512,101:512,168:512,194:512,206:512,226:512,270:512,309:512,313:512,336:512,386:512,404:512'
+    oms_url = f'https://cmsoms.cern.ch/cms/triggers/l1_rates?cms_run={str(dRun)}&props.11273_11270.selectedCells=L1A%20physics:2&props.11275_11270.selectedCells=Total:2&props.11274_11270.selectedCells=24:512,63:512,101:512,168:512,194:512,206:512,226:512,270:512,309:512,313:512,336:512,386:512,404:512&props.19391_19388.selectedCells=L1A%20physics:2&props.19393_19388.selectedCells=Total:2'
 
     return oms_url
     
@@ -361,10 +362,46 @@ if __name__ == '__main__':
                 if not args.debug:
                     webbrowser.open(dqm_url_L1TEmu, new=0, autoraise=False)
 
+                # set dataset name - part1
+                dRun_dataset_Mu = rRun_dataset_Mu = 'Muon'
+                dRun_dataset_EG = rRun_dataset_EG = 'EGamma'
+                dRun_dataset_Ext = rRun_dataset_Ext = ''
+                for era_toCheck in ['Run2023A','Run2023B','Run2023C','Run2023D','Run2023G']:
+                    if era_toCheck in args.data_era:
+                        dRun_dataset_Ext = '0'
+                    if era_toCheck in args.ref_era:
+                        rRun_dataset_Ext = '0'
+
+                # ppRef runs Run2023F
+                for era_toCheck in ['Run2023F']:
+                    # HLTPhysics
+                    if era_toCheck in args.data_era:
+                        dRun_dataset_Mu = 'HLTPhysics'
+                        dRun_dataset_EG = 'PPRefHardProbes0'
+                    if era_toCheck in args.ref_era:
+                        rRun_dataset_Mu = 'HLTPhysics'
+                        rRun_dataset_EG = 'PPRefHardProbes0'                        
+                        
+                dRun_dataset_Mu = '%s%s' % (dRun_dataset_Mu, dRun_dataset_Ext)
+                rRun_dataset_Mu = '%s%s' % (rRun_dataset_Mu, rRun_dataset_Ext)
+                dRun_dataset_EG = '%s%s' % (dRun_dataset_EG, dRun_dataset_Ext)
+                rRun_dataset_EG = '%s%s' % (rRun_dataset_EG, rRun_dataset_Ext)
+
+
+                dqm_url_L1TEffi_Mu = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_Mu, rRun_dataset=rRun_dataset_Mu, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Efficiency', refNormalize=False)
+                dqm_url_L1TReso_Mu = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_Mu, rRun_dataset=rRun_dataset_Mu, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Resolution', refNormalize=True)
+                dqm_url_L1TEffi_EG = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_EG, rRun_dataset=rRun_dataset_EG, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Efficiency', refNormalize=False)
+                dqm_url_L1TReso_EG = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_EG, rRun_dataset=rRun_dataset_EG, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Resolution', refNormalize=True)
+
+
+
+                        
+                '''
                 dqm_url_L1TEffi_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
                 dqm_url_L1TReso_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
                 dqm_url_L1TEffi_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
                 dqm_url_L1TReso_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
+                '''
                 print(dqm_url_L1TEffi_Mu)
                 print(dqm_url_L1TReso_Mu)
                 print(dqm_url_L1TEffi_EG)
