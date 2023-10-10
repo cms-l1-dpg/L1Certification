@@ -163,6 +163,7 @@ if __name__ == '__main__':
     parser.add_argument('-pre',  '--prev_ref',  action='store_true', help='Use only reference runs prior to data run')
     parser.add_argument('-dqmD', '--dqm_data',  action='store_true', help='Open Online or Offline DQM pages for each data run')
     parser.add_argument('-dqmR', '--dqm_ref',   action='store_true', help='Open Online or Offline DQM pages for each reference run')
+    parser.add_argument('-NoDqmOf', '--NoDqm_offline',  action='store_true', help='Do not open Offline DQM pages for each data run')
     parser.add_argument('-omsD', '--oms_data',  action='store_true', help='Open OMS page for each data run')
     parser.add_argument('-deb',  '--debug',     action='store_true', help='Only print URLs and do not open them')
     parser.add_argument('-vrb',  '--verbose',   action='store_true', help='Include verbose printouts')
@@ -362,55 +363,68 @@ if __name__ == '__main__':
                 if not args.debug:
                     webbrowser.open(dqm_url_L1TEmu, new=0, autoraise=False)
 
-                # set dataset name - part1
-                dRun_dataset_Mu = rRun_dataset_Mu = 'Muon'
-                dRun_dataset_EG = rRun_dataset_EG = 'EGamma'
-                dRun_dataset_Ext = rRun_dataset_Ext = ''
-                for era_toCheck in ['Run2023A','Run2023B','Run2023C','Run2023D','Run2023G']:
-                    if era_toCheck in args.data_era:
-                        dRun_dataset_Ext = '0'
-                    if era_toCheck in args.ref_era:
-                        rRun_dataset_Ext = '0'
+                if not args.NoDqm_offline:
+                    
+                    # set dataset name - part1
+                    dRun_dataset_Mu = rRun_dataset_Mu = 'Muon'
+                    dRun_dataset_EG = rRun_dataset_EG = 'EGamma'
+                    dRun_dataset_Ext = rRun_dataset_Ext = ''
+                    for era_toCheck in ['Run2023A','Run2023B','Run2023C','Run2023D','Run2023G']:
+                        if era_toCheck in args.data_era:
+                            dRun_dataset_Ext = '0'
+                        if era_toCheck in args.ref_era:
+                            rRun_dataset_Ext = '0'
 
-                # ppRef runs Run2023F
-                for era_toCheck in ['Run2023F']:
-                    # HLTPhysics
-                    if era_toCheck in args.data_era:
-                        dRun_dataset_Mu = 'HLTPhysics'
-                        dRun_dataset_EG = 'PPRefHardProbes0'
-                    if era_toCheck in args.ref_era:
-                        rRun_dataset_Mu = 'HLTPhysics'
-                        rRun_dataset_EG = 'PPRefHardProbes0'                        
-                        
-                dRun_dataset_Mu = '%s%s' % (dRun_dataset_Mu, dRun_dataset_Ext)
-                rRun_dataset_Mu = '%s%s' % (rRun_dataset_Mu, rRun_dataset_Ext)
-                dRun_dataset_EG = '%s%s' % (dRun_dataset_EG, dRun_dataset_Ext)
-                rRun_dataset_EG = '%s%s' % (rRun_dataset_EG, rRun_dataset_Ext)
+                    # ppRef runs Run2023F
+                    for era_toCheck in ['Run2023F']:
+                        # HLTPhysics
+                        if era_toCheck in args.data_era:
+                            dRun_dataset_Mu = 'HLTPhysics'
+                            dRun_dataset_EG = 'PPRefHardProbes0'
+                        if era_toCheck in args.ref_era:
+                            rRun_dataset_Mu = 'HLTPhysics'
+                            rRun_dataset_EG = 'PPRefHardProbes0'
+
+                    # HI runs
+                    for era_toCheck in ['HIRun2023A']:
+                        # HLTPhysics
+                        if era_toCheck in args.data_era:
+                            dRun_dataset_Mu = 'HIHLTPhysics'
+                            dRun_dataset_EG = 'HIHLTPhysics'
+                            dRun_dataset_Ext = ''
+                        if era_toCheck in args.ref_era:
+                            rRun_dataset_Mu = 'HIHLTPhysics'
+                            rRun_dataset_EG = 'HIHLTPhysics'
+                            rRun_dataset_Ext = ''
 
 
-                dqm_url_L1TEffi_Mu = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_Mu, rRun_dataset=rRun_dataset_Mu, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Efficiency', refNormalize=False)
-                dqm_url_L1TReso_Mu = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_Mu, rRun_dataset=rRun_dataset_Mu, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Resolution', refNormalize=True)
-                dqm_url_L1TEffi_EG = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_EG, rRun_dataset=rRun_dataset_EG, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Efficiency', refNormalize=False)
-                dqm_url_L1TReso_EG = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_EG, rRun_dataset=rRun_dataset_EG, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Resolution', refNormalize=True)
+                    dRun_dataset_Mu = '%s%s' % (dRun_dataset_Mu, dRun_dataset_Ext)
+                    rRun_dataset_Mu = '%s%s' % (rRun_dataset_Mu, rRun_dataset_Ext)
+                    dRun_dataset_EG = '%s%s' % (dRun_dataset_EG, dRun_dataset_Ext)
+                    rRun_dataset_EG = '%s%s' % (rRun_dataset_EG, rRun_dataset_Ext)
 
 
+                    dqm_url_L1TEffi_Mu = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_Mu, rRun_dataset=rRun_dataset_Mu, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Efficiency', refNormalize=False)
+                    dqm_url_L1TReso_Mu = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_Mu, rRun_dataset=rRun_dataset_Mu, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Resolution', refNormalize=True)
+                    dqm_url_L1TEffi_EG = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_EG, rRun_dataset=rRun_dataset_EG, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Efficiency', refNormalize=False)
+                    dqm_url_L1TReso_EG = form_offline_dqm_url(dRun, rRun, dRun_dataset=dRun_dataset_EG, rRun_dataset=rRun_dataset_EG, dRun_era=args.data_era, rRun_era=args.ref_era, workspace='L1T_shift/Resolution', refNormalize=True)
 
-                        
-                '''
-                dqm_url_L1TEffi_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
-                dqm_url_L1TReso_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
-                dqm_url_L1TEffi_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
-                dqm_url_L1TReso_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
-                '''
-                print(dqm_url_L1TEffi_Mu)
-                print(dqm_url_L1TReso_Mu)
-                print(dqm_url_L1TEffi_EG)
-                print(dqm_url_L1TReso_EG)
-                if not args.debug:
-                    webbrowser.open(dqm_url_L1TEffi_Mu, new=0, autoraise=False)
-                    webbrowser.open(dqm_url_L1TReso_Mu, new=0, autoraise=False)
-                    webbrowser.open(dqm_url_L1TEffi_EG, new=0, autoraise=False)
-                    webbrowser.open(dqm_url_L1TReso_EG, new=0, autoraise=False)
+
+                    '''
+                    dqm_url_L1TEffi_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
+                    dqm_url_L1TReso_Mu = form_offline_dqm_url(dRun, rRun, dataset='Muon0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
+                    dqm_url_L1TEffi_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Efficiency', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=False)
+                    dqm_url_L1TReso_EG = form_offline_dqm_url(dRun, rRun, dataset='EGamma0', workspace='L1T_shift/Resolution', dRun_era=args.data_era, rRun_era=args.ref_era, refNormalize=True)
+                    '''
+                    print(dqm_url_L1TEffi_Mu)
+                    print(dqm_url_L1TReso_Mu)
+                    print(dqm_url_L1TEffi_EG)
+                    print(dqm_url_L1TReso_EG)
+                    if not args.debug:
+                        webbrowser.open(dqm_url_L1TEffi_Mu, new=0, autoraise=False)
+                        webbrowser.open(dqm_url_L1TReso_Mu, new=0, autoraise=False)
+                        webbrowser.open(dqm_url_L1TEffi_EG, new=0, autoraise=False)
+                        webbrowser.open(dqm_url_L1TReso_EG, new=0, autoraise=False)
             
 
                     
