@@ -397,7 +397,16 @@ if __name__ == '__main__':
                             rRun_dataset_EG = 'HIHLTPhysics'
                             rRun_dataset_Ext = ''
 
-
+                    # ppRef runs Run2023F
+                    for era_toCheck in ['Run2024A']:
+                        # HLTPhysics
+                        if era_toCheck in args.data_era:
+                            dRun_dataset_Mu = 'HLTPhysics'
+                            dRun_dataset_EG = 'HLTPhysics'
+                        if era_toCheck in args.ref_era:
+                            rRun_dataset_Mu = 'Muon'
+                            rRun_dataset_EG = 'EGamma'
+                            
                     dRun_dataset_Mu = '%s%s' % (dRun_dataset_Mu, dRun_dataset_Ext)
                     rRun_dataset_Mu = '%s%s' % (rRun_dataset_Mu, rRun_dataset_Ext)
                     dRun_dataset_EG = '%s%s' % (dRun_dataset_EG, dRun_dataset_Ext)
