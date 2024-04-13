@@ -369,7 +369,9 @@ if __name__ == '__main__':
                     dRun_dataset_Mu = rRun_dataset_Mu = 'Muon'
                     dRun_dataset_EG = rRun_dataset_EG = 'EGamma'
                     dRun_dataset_Ext = rRun_dataset_Ext = ''
-                    for era_toCheck in ['Run2023A','Run2023B','Run2023C','Run2023D','Run2023G']:
+                    for era_toCheck in [
+                            'Run2023A','Run2023B','Run2023C','Run2023D','Run2023G',
+                            'Run2024B','Run2024C','Run2024D']:
                         if era_toCheck in args.data_era:
                             dRun_dataset_Ext = '0'
                         if era_toCheck in args.ref_era:
