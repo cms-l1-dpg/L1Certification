@@ -371,7 +371,7 @@ if __name__ == '__main__':
                     dRun_dataset_Ext = rRun_dataset_Ext = ''
                     for era_toCheck in [
                             'Run2023A','Run2023B','Run2023C','Run2023D','Run2023G',
-                            'Run2024B','Run2024C','Run2024D']:
+                            'Run2024B','Run2024C','Run2024D','Run2024E','Run2024F']:
                         if era_toCheck in args.data_era:
                             dRun_dataset_Ext = '0'
                         if era_toCheck in args.ref_era:
